@@ -107,9 +107,15 @@ export default function HeroCanvas() {
       waveOffset = (waveOffset + 0.8) % 200;
     }
 
+    // Both canvas and ctx are guaranteed non-null past the guards above —
+    // capture them in stable references so TypeScript and closure scoping both agree.
+    const safeCtx = ctx as CanvasRenderingContext2D;
+
     function resize() {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
+      const c = canvasRef.current;
+      if (!c) return;
+      W = c.width = window.innerWidth;
+      H = c.height = window.innerHeight;
     }
 
     function init() {
@@ -118,11 +124,11 @@ export default function HeroCanvas() {
     }
 
     function animate() {
-      ctx.clearRect(0, 0, W, H);
-      drawBlueprintGrid(ctx);
-      drawHeartbeat(ctx);
-      particles.forEach(p => { p.update(); p.draw(ctx); });
-      connectParticles(ctx);
+      safeCtx.clearRect(0, 0, W, H);
+      drawBlueprintGrid(safeCtx);
+      drawHeartbeat(safeCtx);
+      particles.forEach(p => { p.update(); p.draw(safeCtx); });
+      connectParticles(safeCtx);
       animId = requestAnimationFrame(animate);
     }
 
